@@ -1,4 +1,5 @@
 from math import pi
+import matplotlib.pyplot as plt
 import numpy as np
 
 class AircraftSimulator:
@@ -19,14 +20,9 @@ class AircraftSimulator:
         self.alpha_vel = {0: 0.0}
         self.alpha_acc = {0: 0.0}
         self.elevator_actual = {0: 0.0}
-        self.elevator_input = {
-            **{t:  0.0 for t in range(-1 * resolution,  5 * resolution)},
-            **{t:  1.0 for t in range( 5 * resolution, 10 * resolution)},
-            **{t: -1.0 for t in range(10 * resolution, 15 * resolution)},
-            **{t:  0.0 for t in range(15 * resolution, 20 * resolution + 1)},
-        }
+        self.elevator_input = {0: 0.0}
         
-    def run_sim(self, sim_length):
+    def run_sim(self, sim_length, control_callback):
         elevator_max_change = self.elevator_max_slew / self.resolution
 
         alpha_angular_frequency = 2 * pi / self.alpha_period
@@ -35,7 +31,11 @@ class AircraftSimulator:
         alpha_restoring_coefficient = - alpha_angular_frequency ** 2
         
         for t in range(1, sim_length * self.resolution):
-            elevator_delayed_input = self.elevator_input[t - self.elevator_delay_ticks]
+            aircraft_state = {'time': t / self.resolution, 'alpha': self.alpha[t-1], 'alpha_vel': self.alpha_vel[t-1]}
+            controls = control_callback(aircraft_state)
+            self.elevator_input[t] = controls['elevator']
+            
+            elevator_delayed_input = self.elevator_input.get(t - self.elevator_delay_ticks, 0.0)
 
             elevator_lower_limit = max(-1, self.elevator_actual[t-1] - elevator_max_change)
             elevator_upper_limit = min(1, self.elevator_actual[t-1] + elevator_max_change)
@@ -50,3 +50,10 @@ class AircraftSimulator:
             
         self.alpha_nparray = np.array([(k / self.resolution,v) for k,v in self.alpha.items()])
         self.elevator_nparray = np.array([(k / self.resolution,v) for k,v in self.elevator_input.items()])
+        
+    def pyplot(self):
+        plt.figure().patch.set_facecolor('white')
+        plt.plot(self.alpha_nparray[:,0], self.alpha_nparray[:,1])
+        commanded_alpha = (self.elevator_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
+        plt.plot(self.elevator_nparray[:,0], commanded_alpha)
+        plt.show()
