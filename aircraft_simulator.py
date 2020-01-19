@@ -49,11 +49,18 @@ class AircraftSimulator:
             self.alpha[t] = self.alpha[t-1] + self.alpha_vel[t] / self.resolution
             
         self.alpha_nparray = np.array([(k / self.resolution,v) for k,v in self.alpha.items()])
-        self.elevator_nparray = np.array([(k / self.resolution,v) for k,v in self.elevator_input.items()])
+        self.elevator_actual_nparray = np.array([(k / self.resolution,v) for k,v in self.elevator_actual.items()])
+        self.elevator_input_nparray = np.array([(k / self.resolution,v) for k,v in self.elevator_input.items()])
         
     def pyplot(self):
         plt.figure().patch.set_facecolor('white')
+        
         plt.plot(self.alpha_nparray[:,0], self.alpha_nparray[:,1])
-        commanded_alpha = (self.elevator_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
-        plt.plot(self.elevator_nparray[:,0], commanded_alpha)
+        
+        commanded_alpha_actual = (self.elevator_actual_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
+        plt.plot(self.elevator_actual_nparray[:,0], commanded_alpha_actual)
+        
+        commanded_alpha_input = (self.elevator_input_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
+        plt.plot(self.elevator_input_nparray[:,0], commanded_alpha_input)
+        
         plt.show()
