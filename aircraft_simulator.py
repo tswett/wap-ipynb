@@ -7,7 +7,7 @@ class AircraftSimulator:
         self.resolution = resolution = 100
 
         self.elevator_max_slew = 2
-        self.elevator_delay_ticks = resolution * 3 / 10
+        self.elevator_delay_ticks = resolution * 1 / 10
 
         self.alpha_elevator_yintercept = 2.5
         self.alpha_elevator_slope = 7.5
@@ -58,9 +58,9 @@ class AircraftSimulator:
         plt.plot(self.alpha_nparray[:,0], self.alpha_nparray[:,1])
         
         commanded_alpha_actual = (self.elevator_actual_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
-        plt.plot(self.elevator_actual_nparray[:,0], commanded_alpha_actual)
+        #plt.plot(self.elevator_actual_nparray[:,0], commanded_alpha_actual)
         
         commanded_alpha_input = (self.elevator_input_nparray[:,1] * self.alpha_elevator_slope) + self.alpha_elevator_yintercept
-        plt.plot(self.elevator_input_nparray[:,0], commanded_alpha_input)
+        #plt.plot(self.elevator_input_nparray[:,0], commanded_alpha_input)
         
         plt.show()
